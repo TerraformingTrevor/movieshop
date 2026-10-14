@@ -16,7 +16,7 @@ model Movie {
   releaseDate DateTime
   imageUrl    String
   stock       Int
-  runtime     Float
+  runtime     Int
   orderItems  OrderItem[]
 }
 
