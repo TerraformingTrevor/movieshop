@@ -8,7 +8,8 @@ const linkClassName = buttonVariants({
 
 const links = [
     { label: "Home", href: "/" },
-    { label: "About", href: "/about"}
+    { label: "About", href: "/about"},
+    { label: "Movies", href: "/movies"}
     // Add Navbar options
 ];
 
