@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -9,21 +8,48 @@ datasource db {
 }
 
 model Movie {
-  id          String      @id @default(cuid())
-  title       String
-  description String
-  price       Int
-  releaseDate DateTime
-  imageUrl    String
-  stock       Int
-  runtime     Int
-  orderItems  OrderItem[]
+  id          String   @id @default(cuid())
+    title       String
+      description String
+        price       Int
+          releaseDate DateTime
+            imageUrl    String
+              stock       Int
+                runtime     Int
+                  createdAt DateTime @default(now())
+                    updatedAt DateTime @default(now()) @updatedAt
+
+                      orderItems OrderItem[]
+
+                        authorId   Int?
+                          directorId Int?
+
+                            author   Author?   @relation(fields: [authorId], references: [id])
+                              director Director? @relation(fields: [directorId], references: [id])
+                                genres Genre[]
 }
 
 model Genre {
-  id          String @id @default(cuid())
-  name        String @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String
+  movies      Movie[]
+}
+
+model Author {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  movies    Movie[]
+}
+
+model Director {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  movies    Movie[]
 }
 
 model Order {
@@ -111,5 +137,3 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
-
-// director & author models
