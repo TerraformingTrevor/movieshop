@@ -10,17 +10,25 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { updateMovie } from "@/actions/update.action";
+import { updateMovie } from "@/actions/update-action"; 
+
 
 interface MovieUpdateFormProps {
   movie: {
     id: string;
     title: string;
-    author: string;
-    published: Date;
-    isbn: string;
+    author: {
+      id: number;
+      name: string;
+    } | null;
+    releaseDate: Date;
+    director: {
+      id: number;
+      name: string;
+    } | null;
   };
 }
+
 
 const formSchema = z.object({
   title: z
@@ -32,18 +40,16 @@ const formSchema = z.object({
     .string()
     .min(1, "Movie author is required"),
 
-   published: z
+   releaseDate: z
     .string().date("Invalid date").refine((val) => { const year = parseInt(val.split("-")[0], 10);
       const currentYear = new Date().getFullYear();
       return year >= 1000 && year <= currentYear;
     }, "Release date must be between 1000 and the current year"),
 
-  isbn: z
+  director: z
     .string()
-    .regex(
-      /^\d{13}$/,
-      "ISBN must contain exactly 13 digits"
-    ),
+    .min(1, "Movie director is required"),
+
 });
 
 export function MovieUpdateForm({
@@ -52,12 +58,12 @@ export function MovieUpdateForm({
   const form = useForm({
     defaultValues: {
       title: movie.title,
-      author: movie.author,
-      published: movie.published.toISOString().split("T")[0],
-      isbn: movie.isbn,
+      author: movie.author?.name ?? "Deleted Author",
+      releaseDate: movie.releaseDate.toISOString().split("T")[0],
+      director: movie.director?.name ?? "Deleted Director",
     },
 
-    validators: {
+    directorrs: {
       onSubmit: formSchema,
     },
 
@@ -66,8 +72,8 @@ export function MovieUpdateForm({
         id: movie.id,
         title: value.title,
         author: value.author,
-        published: value.published,
-        isbn: value.isbn,
+        releaseDate: value.releaseDate,
+        director: value.director,
       });
     },
   });
@@ -152,7 +158,7 @@ export function MovieUpdateForm({
         </form.Field>
 
         {/* PUBLICATION DATE */}
-        <form.Field name="published">
+        <form.Field name="releaseDate">
   {(field) => {
     const isInvalid =
       field.state.meta.isTouched &&
@@ -161,7 +167,7 @@ export function MovieUpdateForm({
     return (
       <Field data-invalid={isInvalid}>
         <FieldLabel htmlFor={field.name}>
-          Published
+          Release Date
         </FieldLabel>
 
         <Input
@@ -186,8 +192,8 @@ export function MovieUpdateForm({
   }}
 </form.Field>
 
-        {/* ISBN */}
-        <form.Field name="isbn">
+        {/* DIRECTOR */}
+        <form.Field name="director">
           {(field) => {
             const isInvalid =
               field.state.meta.isTouched &&
@@ -196,7 +202,7 @@ export function MovieUpdateForm({
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={field.name}>
-                  ISBN
+                  Director
                 </FieldLabel>
 
                 <Input
@@ -208,7 +214,7 @@ export function MovieUpdateForm({
                     field.handleChange(event.target.value)
                   }
                   aria-invalid={isInvalid}
-                  placeholder="9781234567890"
+                  placeholder="Director name"
                 />
 
                 {isInvalid && (

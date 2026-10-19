@@ -1,9 +1,9 @@
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { BookDeleteDialog } from "./_components/book-delete-dialog";
+import { MovieDeleteDialog } from "./_components/movie-delete-dialog";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
-import { BookUpdateDrawer } from "./update/_components/book_update_drawer";
+import { MovieUpdateDrawer } from "./update/_components/movie_update_drawer";
 
 export default async function MovieDetailsPage(
     props: PageProps<"/movies/[movieId]">
@@ -41,11 +41,11 @@ return (
   </h2>
 
   <p>
-    Published: {movie.published.toLocaleDateString("sv-SE")}
+    Release Date: {movie.releaseDate.toLocaleDateString("sv-SE")}
   </p>
 
   <h2 className="text-gray-500">
-    isbn: {movie.isbn}
+    Director: {movie.director?.name ?? "Deleted Director"}
 
     <div className="flex gap-2">
 
@@ -54,8 +54,8 @@ return (
     id: movie.id,
     title: movie.title,
     author: movie.author?.name ?? "Deleted Author",
-    published: new Date(movie.published),
-    isbn: movie.isbn,
+    releaseDate: new Date(movie.releaseDate),
+    director: movie.director?.name ?? "Deleted Director",
   }}
 />
 

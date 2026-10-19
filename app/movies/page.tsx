@@ -3,11 +3,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 
+
 export default async function MoviesPage() {
-    const movies = await prisma.movie.findMany({
-        include: { author: true, director: true, genres: true },
-        orderBy: [{ updatedAt: "desc"}, { createdAt: "desc" }],
-    });
+  const movies = await prisma.movie.findMany({
+    include: {
+      author: true,
+      director: true,
+      genres: true,
+    },
+  });
 
   return (
     <div className="space-y-2 p-6">
@@ -29,7 +33,11 @@ export default async function MoviesPage() {
             <p className="line-clamp-2">{movie.releaseDate.toLocaleDateString("sv-SE")}</p>
         </CardContent>
         <CardContent>
-            <p className="line-clamp-2">{movie.imageUrl.substring(0, 100)}</p>
+            <p className="line-clamp-2">
+             {movie.imageUrl
+                ? movie.imageUrl.substring(0, 100)
+                : "No image URL available"}
+            </p>
         
         <CardDescription>
         {movie.stock > 0 ? "In stock" : "Out of stock"}
