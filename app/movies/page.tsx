@@ -7,9 +7,15 @@ import Link from "next/link";
 export default async function MoviesPage() {
   const movies = await prisma.movie.findMany({
     include: {
-      author: true,
+      id: true,
+      title: true,
+      description: true,
       director: true,
       genres: true,
+      price: true,
+      releaseDate: true,
+      imageUrl: true,
+      stock: true,
     },
   });
 
@@ -22,9 +28,8 @@ export default async function MoviesPage() {
         <CardHeader>
             <CardTitle>{movie.title}</CardTitle>
             <CardDescription>
-                Author: {movie.author?.name ?? "Deleted Author"}
                 Director: {movie.director?.name ?? "Deleted Director"}
-                Genre: {movie.genres.map((genre) => genre.name).join(", ") || "No genres"}
+                Genre: {movie.genres.map((genre) => genre.name).join(", ") || "No genres"} 
             </CardDescription> 
         </CardHeader>
         <CardContent>
