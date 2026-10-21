@@ -9,16 +9,19 @@ export default async function MovieDetailsPage(
     props: PageProps<"/movies/[movieId]">
 ) {
     const params = await props.params;
-    const movieId = (params.movieId);
-
+    const movieId = parseInt(params.movieId);
+    if (Number.isNaN(movieId)) {
+        notFound();
+    }
     const movie = await prisma.movie.findUnique({
         where: { id: movieId },
-        include: { author: true}, 
+        include: { person: true}, 
     });
 
     if (!movie) {
         notFound();
     }
+    
 return (
   
 <div className="space-y-2 p-6">
@@ -37,7 +40,7 @@ return (
   </div>
 
   <h2 className="mt-2 text-lg text-black-500 font-bold">
-    Author: {movie.author?.name ?? "Deleted Author"}
+    Person: {movie.person?.name ?? "Deleted Person"}
   </h2>
 
   <p>
@@ -53,7 +56,7 @@ return (
   movie={{
     id: movie.id,
     title: movie.title,
-    author: movie.author?.name ?? "Deleted Author",
+    person: movie.person?.name ?? "Deleted Person",
     releaseDate: new Date(movie.releaseDate),
     director: movie.director?.name ?? "Deleted Director",
   }}

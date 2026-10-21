@@ -17,6 +17,8 @@ export default async function MoviesPage() {
       imageUrl: true,
       stock: true,
     },
+    orderBy: [{ title: "desc" }] 
+    // order by trendy? :)
   });
 
   return (

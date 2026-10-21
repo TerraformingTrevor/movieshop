@@ -1,5 +1,5 @@
 
-"use server";
+"use server"; 
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
@@ -19,7 +19,7 @@ const createMovieSchema = z.object({
   imageUrl: z.string().min(1, "Image URL is required"),
   stock: z.string().min(1, "Stock is required"),
   runtime: z.string().min(1, "Runtime is required"),
-  author: z.string().min(1, "Movie author is required"),
+  person: z.string().min(1, "Person is required"),
   director: z.string().min(1, "Director is required"),
 });
 
@@ -31,10 +31,10 @@ export async function createMovie(input: CreateMovieInput) {
   try {
     const data = createMovieSchema.parse(input);
 
-    const author = await prisma.author.upsert({
-      where: { name: data.author },
+    const person = await prisma.person.upsert({
+      where: { name: data.person },
       update: {},
-      create: { name: data.author },
+      create: { name: data.person },
     });
 
     // Reuse an existing director or create one if needed
@@ -57,8 +57,8 @@ export async function createMovie(input: CreateMovieInput) {
         imageUrl: data.imageUrl,
         stock: parseInt(data.stock, 10),
         runtime: parseInt(data.runtime, 10),
-        author: {
-          connect: { id: author.id },
+        person: {
+          connect: { id: person.id },
         },
         director: {
           connect: { id: director.id },

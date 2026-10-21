@@ -17,7 +17,12 @@ interface MovieUpdateFormProps {
   movie: {
     id: string;
     title: string;
-    author: {
+    description: string;
+    price: number;
+    imageUrl: string;
+    stock: number;
+    runtime: number;
+    person: {
       id: number;
       name: string;
     } | null;
@@ -33,23 +38,16 @@ interface MovieUpdateFormProps {
 const formSchema = z.object({
   title: z
     .string()
-    .min(1, "Title is required")
+    .min(3, "Title has to be at least 3 characters")
     .max(75, "Title must be at most 75 characters"),
-
-  author: z
-    .string()
-    .min(1, "Movie author is required"),
-
-   releaseDate: z
-    .string().date("Invalid date").refine((val) => { const year = parseInt(val.split("-")[0], 10);
-      const currentYear = new Date().getFullYear();
-      return year >= 1000 && year <= currentYear;
-    }, "Release date must be between 1000 and the current year"),
-
-  director: z
-    .string()
-    .min(1, "Movie director is required"),
-
+  description: z.string().min(1, "Description is required"),
+  price: z.string().min(1, "Price is required"),
+  releaseDate: z.iso.date("Invalid release date"),
+  imageUrl: z.string().min(1, "Image URL is required"),
+  stock: z.string().min(1, "Stock is required"),
+  runtime: z.string().min(1, "Runtime is required"),
+  person: z.string().min(1, "Person is required"),
+  director: z.string().min(1, "Director is required"),
 });
 
 export function MovieUpdateForm({
@@ -57,24 +55,34 @@ export function MovieUpdateForm({
 }: MovieUpdateFormProps) {
   const form = useForm({
     defaultValues: {
-      title: movie.title,
-      author: movie.author?.name ?? "Deleted Author",
-      releaseDate: movie.releaseDate.toISOString().split("T")[0],
-      director: movie.director?.name ?? "Deleted Director",
-    },
+  title: movie.title,
+  description: movie.description,
+  price: String(movie.price),
+  releaseDate: movie.releaseDate.toISOString().split("T")[0],
+  imageUrl: movie.imageUrl,
+  stock: String(movie.stock),
+  runtime: String(movie.runtime),
+  person: movie.person?.name ?? "",
+  director: movie.director?.name ?? "",
+},
 
-    directorrs: {
+    validators: {
       onSubmit: formSchema,
     },
 
-    onSubmit: async ({ value }) => {
-      await updateMovie({
-        id: movie.id,
-        title: value.title,
-        author: value.author,
-        releaseDate: value.releaseDate,
-        director: value.director,
-      });
+onSubmit: async ({ value }) => {
+  await updateMovie({
+    id: movie.id,
+    title: value.title,
+    description: value.description,
+    price: value.price,
+    releaseDate: value.releaseDate,
+    imageUrl: value.imageUrl,
+    stock: value.stock,
+    runtime: value.runtime,
+    person: value.person,
+    director: value.director,
+  });
     },
   });
 
@@ -122,8 +130,8 @@ export function MovieUpdateForm({
           }}
         </form.Field>
 
-        {/* AUTHOR */}
-        <form.Field name="author">
+        {/* PERSON */}
+        <form.Field name="person">
           {(field) => {
             const isInvalid =
               field.state.meta.isTouched &&
@@ -132,7 +140,7 @@ export function MovieUpdateForm({
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={field.name}>
-                  Author
+                  Person
                 </FieldLabel>
 
                 <Input
@@ -144,7 +152,7 @@ export function MovieUpdateForm({
                     field.handleChange(event.target.value)
                   }
                   aria-invalid={isInvalid}
-                  placeholder="Author name"
+                  placeholder="Person name"
                 />
 
                 {isInvalid && (
@@ -157,7 +165,41 @@ export function MovieUpdateForm({
           }}
         </form.Field>
 
-        {/* PUBLICATION DATE */}
+        {/* DESCRIPTION */}
+      <form.Field name="description">
+  {(field) => {
+    const isInvalid =
+      field.state.meta.isTouched &&
+      !field.state.meta.isValid;
+
+    return (
+      <Field data-invalid={isInvalid}>
+        <FieldLabel htmlFor={field.name}>
+          Description
+        </FieldLabel>
+
+        <Input
+          id={field.name}
+          name={field.name}
+          value={field.state.value}
+          onBlur={field.handleBlur}
+          onChange={(event) =>
+            field.handleChange(event.target.value)
+          }
+          aria-invalid={isInvalid}
+          placeholder="Movie description"
+        />
+
+        {isInvalid && (
+          <FieldError errors={field.state.meta.errors} />
+        )}
+      </Field>
+    );
+  }}
+      </form.Field>
+
+
+        {/* RELEASE DATE */}
         <form.Field name="releaseDate">
   {(field) => {
     const isInvalid =
@@ -170,27 +212,25 @@ export function MovieUpdateForm({
           Release Date
         </FieldLabel>
 
-        <Input
+          <Input
           id={field.name}
           name={field.name}
           value={field.state.value}
-          type="date"
           onBlur={field.handleBlur}
-          onChange={(event) => field.handleChange(event.target.value)}
+          onChange={(event) =>
+            field.handleChange(event.target.value)
+          }
           aria-invalid={isInvalid}
-          autoComplete="off"
+          placeholder="Release date"
         />
 
         {isInvalid && (
-          <FieldError
-            className="text-xs"
-            errors={field.state.meta.errors}
-          />
+          <FieldError errors={field.state.meta.errors} />
         )}
       </Field>
     );
   }}
-</form.Field>
+        </form.Field>
 
         {/* DIRECTOR */}
         <form.Field name="director">
@@ -226,6 +266,143 @@ export function MovieUpdateForm({
             );
           }}
         </form.Field>
+
+        {/* PRICE */}
+        <form.Field name="price">
+  {(field) => {
+    const isInvalid =
+      field.state.meta.isTouched &&
+      !field.state.meta.isValid;
+
+    return (
+      <Field data-invalid={isInvalid}>
+        <FieldLabel htmlFor={field.name}>
+          Price
+        </FieldLabel>
+
+        <Input
+          id={field.name}
+          name={field.name}
+          value={field.state.value}
+          onBlur={field.handleBlur}
+          onChange={(event) =>
+            field.handleChange(event.target.value)
+          }
+          aria-invalid={isInvalid}
+          placeholder="e.g., 19.99"
+        />
+
+        {isInvalid && (
+          <FieldError errors={field.state.meta.errors} />
+        )}
+      </Field>
+    );
+  }}
+        </form.Field>
+
+        {/* STOCK */}
+        <form.Field name="stock">
+  {(field) => {
+    const isInvalid =
+      field.state.meta.isTouched &&
+      !field.state.meta.isValid;
+
+    return (
+      <Field data-invalid={isInvalid}>
+        <FieldLabel htmlFor={field.name}>
+          Stock
+        </FieldLabel>
+
+        <Input
+          id={field.name}
+          name={field.name}
+          value={field.state.value}
+          onBlur={field.handleBlur}
+          onChange={(event) =>
+            field.handleChange(event.target.value)
+          }
+          aria-invalid={isInvalid}
+          placeholder="e.g., 10"
+        />
+
+        {isInvalid && (
+          <FieldError errors={field.state.meta.errors} />
+        )}
+      </Field>
+    );
+  }}
+        </form.Field>
+
+        {/* RUNTIME */}
+        <form.Field name="runtime">
+  {(field) => {
+    const isInvalid =
+      field.state.meta.isTouched &&
+      !field.state.meta.isValid;
+
+    return (
+      <Field data-invalid={isInvalid}>
+        <FieldLabel htmlFor={field.name}>
+          Runtime
+        </FieldLabel>
+
+        <Input
+          id={field.name}
+          name={field.name}
+          type="number"
+          min={1}
+          step={1}
+          value={field.state.value}
+          onBlur={field.handleBlur}
+          onChange={(event) =>
+            field.handleChange(event.target.value)
+          }
+          aria-invalid={isInvalid}
+          placeholder="e.g., 120"
+        />
+
+        {isInvalid && (
+          <FieldError errors={field.state.meta.errors} />
+        )}
+      </Field>
+    );
+  }}
+        </form.Field>
+
+        {/* IMAGE URL */}
+        <form.Field name="imageUrl">
+          {(field) => {
+            const isInvalid =
+              field.state.meta.isTouched &&
+              !field.state.meta.isValid;
+
+              return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>
+                  Image URL
+                </FieldLabel>
+
+                <Input
+                  id={field.name}
+                  name={field.name}
+                  type="url"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(event) =>
+                    field.handleChange(event.target.value)
+                      }
+                  aria-invalid={isInvalid}
+                  placeholder="https://example.com/movie.jpg"
+                />
+
+                {isInvalid && (
+                  <FieldError errors={field.state.meta.errors} />
+                )}
+              </Field>
+            );
+          }}
+        </form.Field>
+
       </FieldGroup>
 
       <Button type="submit">

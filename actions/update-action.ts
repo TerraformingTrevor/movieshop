@@ -37,9 +37,9 @@ const updateMovieSchema = z.object({
     .string()
     .min(1, "Runtime is required"),
   
-  author: z
+  person: z
     .string()
-    .min(1, "Movie author is required"),
+    .min(1, "Person is required"),
 
   director: z
     .string()
@@ -58,18 +58,22 @@ export async function updateMovie(
   try {
     data = updateMovieSchema.parse(input);
 
-    const author = await prisma.author.upsert({
-      where: { name: data.author },
+    const person = await prisma.person.upsert({
+      where: { name: data.person },
       update: {},
-      create: { name: data.author },
+      create: { name: data.person },
     });
 
     
-const director = await prisma.director.create({
-  data: {
-    name: data.director,
-  },
+let director = await prisma.director.findFirst({
+  where: { name: data.director },
 });
+
+if (!director) {
+  director = await prisma.director.create({
+    data: { name: data.director },
+  });
+}
 
 await prisma.movie.update({
   where: { id: data.id },
@@ -77,9 +81,9 @@ await prisma.movie.update({
     title: data.title,
     description: data.description,
     price: parseInt(data.price),
-    author: {
+    person: {
       connect: {
-        id: author.id,
+        id: person.id,
       },
     },
     releaseDate: new Date(data.releaseDate),

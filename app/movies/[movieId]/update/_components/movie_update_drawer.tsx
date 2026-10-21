@@ -22,7 +22,7 @@ interface MovieUpdateDrawerProps {
     imageUrl: string | null;
     stock: number;
     runtime: number;
-    authorId: number | null;
+    personId: number | null;
     directorId: number | null;
   };
 }
